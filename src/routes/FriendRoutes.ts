@@ -8,24 +8,35 @@ import { IFriend } from '../interfaces/IFriend';
 const Joi = require('joi');
 
 import authMiddleware from "../middleware/basic-auth"
-router.use(authMiddleware);
+//router.use(authMiddleware);
 
+import {ApiError} from "../errors/apiError"
 
 
 router.get("/all", async (req, res) => {
     const friends = await facade.getAllFriends();
-    const firendDTO = friends.map(f => {
-        const {firstName, lastName, email} = f;
-        return {firstName, lastName, email}
+    const firendsDTO = friends.map(f => {
+        const {firstName, lastName, email} = f; //defining the DTO values
+        return {firstName, lastName, email}     //setting values til values in mapped friend (firstName: firstName shortcut)
     })
-    res.json(firendDTO);
+    res.json(firendsDTO);
 });
 
-router.get("/:email", async (req, res) => {
-    const friend = await facade.getFriend(req.params.email);
-    if (!friend) return res.status(404).send('The friend with the given EMAIL was not found');
-    res.json(friend);
-});
+router.get("/:email", async (req, res, next) => {
+    const userId = req.params.userid;
+    try {
+      const friend = await facade.getFriend(userId);
+      if (friend == null) {
+        throw new ApiError("user not found", 404)
+      }
+      const { firstName, lastName, email } = friend;
+      const friendDTO = { firstName, lastName, email }
+      res.json(friendDTO);
+    } catch (err) {
+      next(err)
+    }
+  })
+  
 
 router.post("/", async (req, res) => {
     const friends = await facade.getAllFriends();
@@ -70,6 +81,7 @@ router.put("/me", async (req: any, res, next) => {
     const friendDTO = {firstName, lastName, email}
     res.json(friendDTO);
 });
+//###-----------------------------------------------------###//
 
 router.delete("/delete/:email", async (req, res) => {
     const friends = await facade.getAllFriends();

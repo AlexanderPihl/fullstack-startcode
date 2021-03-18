@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-dotenv.config()
+dotenv.config();
 import debug from 'debug'
 const debug1 = debug('xxx:a')
 const debug2 = debug('xxx:b')

@@ -1,18 +1,58 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
 import path from "path"
-dotenv.config()
-const app = express()
+const app = express();
+
 
 import friendRoutes from "./routes/FriendRoutes";
 
+import logger, { stream } from "./middleware/logger";
+const morganFormat = process.env.NODE_ENV == "production" ? "combined" : "dev"
+app.use(require("morgan")(morganFormat, { stream }));
+logger.log("info", "Server started");
+
+
+//SIMPLE LOGGER
+//Please verify whether this works (requires app in your DEBUG variable, like DEBUG=www,app)
+//If not replace with a console.log statement, or better the "advanced logger" refered to in the exercises
+app.use((req, res, next)=>{
+  console.log(new Date().toLocaleDateString(), req.method, req.originalUrl, req.ip)
+  next();
+});
+
+
+//Allows to access public folder from outside, using express static middleware.
 app.use(express.static(path.join(process.cwd(), "public")))
+
 
 //uses friends facade
 app.use("/api/friends", friendRoutes);
 
+
 app.get("/demo", (req, res) => {
-  res.send("Server is really up - auth working");
+  res.send("Server is really up");
+})
+
+
+//Rammer denne middleware når man prøver at tilgå ugyldigt endpoint eller ikke får noget respons tilbage.
+//404 handler for api-request
+//Our own default 404-handler for api-requests
+app.use("/api", (req: any, res: any, next) => {
+  res.status(404).json({ errorCode: 404, msg: "not found" })
+})
+
+
+import {Request, Response,  NextFunction} from "express"
+import {ApiError} from "./errors/apiError"
+
+//Makes JSON error-response for ApiErrors, otherwise pass on to default error handleer
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof (ApiError)) {
+    res.status(err.errorCode).json({ errorCode: 404, msg: err.message })
+  } else {
+    next(err)
+  }
 })
 
 //middleware test:
@@ -23,7 +63,6 @@ app.get("/whoami", (req: any, res) => {
   const user = req.credentials;
   res.json(user)
 }) */
-
 
 export default app;
 
