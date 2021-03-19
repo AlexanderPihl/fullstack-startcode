@@ -1,9 +1,8 @@
 import express from "express";
+const app = express();
 import dotenv from "dotenv";
 dotenv.config();
 import path from "path"
-const app = express();
-
 
 import friendRoutes from "./routes/FriendRoutes";
 
@@ -12,14 +11,17 @@ const morganFormat = process.env.NODE_ENV == "production" ? "combined" : "dev"
 app.use(require("morgan")(morganFormat, { stream }));
 logger.log("info", "Server started");
 
+//MyCors
+/* import myCors from "./middleware/myCors"
+app.use(myCors); */
+//Using Cors package.json
+const cors = require('cors')
+app.use(cors());
+
 
 //SIMPLE LOGGER
-//Please verify whether this works (requires app in your DEBUG variable, like DEBUG=www,app)
-//If not replace with a console.log statement, or better the "advanced logger" refered to in the exercises
-app.use((req, res, next)=>{
-  console.log(new Date().toLocaleDateString(), req.method, req.originalUrl, req.ip)
-  next();
-});
+import simpleLogger from "./middleware/simpleLogger"
+app.use(simpleLogger);
 
 
 //Allows to access public folder from outside, using express static middleware.
@@ -47,7 +49,7 @@ import {Request, Response,  NextFunction} from "express"
 import {ApiError} from "./errors/apiError"
 
 //Makes JSON error-response for ApiErrors, otherwise pass on to default error handleer
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof (ApiError)) {
     res.status(err.errorCode).json({ errorCode: 404, msg: err.message })
   } else {
@@ -56,13 +58,13 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 })
 
 //middleware test:
-/* import authMiddleware from "../middleware/basic-auth"
+import authMiddleware from "./middleware/basic-auth"
 app.use("/", authMiddleware)
 
 app.get("/whoami", (req: any, res) => {
   const user = req.credentials;
   res.json(user)
-}) */
+})
 
 export default app;
 

@@ -8,7 +8,7 @@ import { IFriend } from '../interfaces/IFriend';
 const Joi = require('joi');
 
 import authMiddleware from "../middleware/basic-auth"
-//router.use(authMiddleware);
+router.use(authMiddleware);
 
 import {ApiError} from "../errors/apiError"
 
@@ -23,7 +23,7 @@ router.get("/all", async (req, res) => {
 });
 
 router.get("/:email", async (req, res, next) => {
-    const userId = req.params.userid;
+    const userId = req.params.email;
     try {
       const friend = await facade.getFriend(userId);
       if (friend == null) {
@@ -72,7 +72,7 @@ router.put("/:id", async (req, res) => {
 //### Lars' version fra video med dto, next og credentials ###
 // fanger kun egne credentials og kan ikke søge på andres. Opfylder OWASP 5 broken authentication
 router.put("/me", async (req: any, res, next) => {
-    const userID = req.credentials.userName;
+    const userID = req.credentials.email;
     const friend = await facade.getFriend(userID);
     if (friend == null){
         return next(new Error("user not found"))

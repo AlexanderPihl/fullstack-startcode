@@ -24,8 +24,7 @@ const authMiddleware = async function (req: Request, res: Response, next: Functi
     const user = await facade.getFriend(name);
     if (user && compare(pass, user.password)){
         req.credentials = {userName: user.email, role: "user"}
-
-        return 
+        return true
     }
     return false;
   }
