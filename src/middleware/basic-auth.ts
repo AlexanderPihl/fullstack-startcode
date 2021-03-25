@@ -2,7 +2,7 @@ import auth from 'basic-auth'
 import compare from 'tsscmp'
 
 import { Request, Response } from "express"
-import facade from "../facade/DummyDB-Facade"
+import facade from "../facade/DELETEMEDummyDB-Facade"
 
 const authMiddleware = async function (req: Request, res: Response, next: Function) {
     var credentials = auth(req);
