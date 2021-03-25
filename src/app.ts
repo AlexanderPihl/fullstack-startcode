@@ -6,10 +6,15 @@ import path from "path"
 
 import friendRoutes from "./routes/FriendRoutes";
 
+//WINSTON/MORGAN-LOGGER
 import logger, { stream } from "./middleware/logger";
 const morganFormat = process.env.NODE_ENV == "production" ? "combined" : "dev"
 app.use(require("morgan")(morganFormat, { stream }));
-logger.log("info", "Server started");
+app.set("logger", logger) 
+//The line above sets the logger as a global key on the application object
+//You can now use it from all your middlewares like this req.app.get("logger").log("info","Message")
+//Level can be one of the following: error, warn, info, http, verbose, debug, silly
+//Level = "error" will go to the error file in production
 
 //MyCors
 /* import myCors from "./middleware/myCors"
@@ -20,8 +25,8 @@ app.use(cors());
 
 
 //SIMPLE LOGGER
-import simpleLogger from "./middleware/simpleLogger"
-app.use(simpleLogger);
+/* import simpleLogger from "./middleware/simpleLogger"
+app.use(simpleLogger); */
 
 
 //Allows to access public folder from outside, using express static middleware.

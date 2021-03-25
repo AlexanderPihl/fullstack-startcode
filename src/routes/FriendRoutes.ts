@@ -3,7 +3,7 @@ import {Router} from "express"
 const router = Router();
 router.use(express.json());
 
-import facade from "../facade/DummyDB-Facade";
+import facade from "../facade/DELETEMEDummyDB-Facade";
 import { IFriend } from '../interfaces/IFriend';
 const Joi = require('joi');
 
