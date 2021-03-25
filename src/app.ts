@@ -4,7 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 import path from "path"
 
-import friendRoutes from "./routes/FriendRoutes";
+//import friendRoutes from "./routes/XXXFriendRoutes";
+import friendRoutes from "./routes/friendRoutesAuth";
 
 //WINSTON/MORGAN-LOGGER
 import logger, { stream } from "./middleware/logger";
@@ -62,14 +63,14 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   }
 })
 
-//middleware test:
-import authMiddleware from "./middleware/basic-auth"
+//middleware test: DELETE THIS????
+/* import authMiddleware from "./middleware/basic-auth"
 app.use("/", authMiddleware)
 
 app.get("/whoami", (req: any, res) => {
   const user = req.credentials;
   res.json(user)
-})
+}) */
 
 export default app;
 
