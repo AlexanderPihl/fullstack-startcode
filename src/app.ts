@@ -6,6 +6,8 @@ import path from "path"
 
 //import friendRoutes from "./routes/XXXFriendRoutes";
 import friendRoutes from "./routes/friendRoutesAuth";
+import {ApiError} from "./errors/apiError"
+import {Request, Response,  NextFunction} from "express"
 
 //WINSTON/MORGAN-LOGGER
 import logger, { stream } from "./middleware/logger";
@@ -21,9 +23,9 @@ app.set("logger", logger)
 /* import myCors from "./middleware/myCors"
 app.use(myCors); */
 //Using Cors package.json
-const cors = require('cors')
+/* const cors = require('cors')
 app.use(cors());
-
+ */
 
 //SIMPLE LOGGER
 /* import simpleLogger from "./middleware/simpleLogger"
@@ -50,9 +52,6 @@ app.use("/api", (req: any, res: any, next) => {
   res.status(404).json({ errorCode: 404, msg: "not found" })
 })
 
-
-import {Request, Response,  NextFunction} from "express"
-import {ApiError} from "./errors/apiError"
 
 //Makes JSON error-response for ApiErrors, otherwise pass on to default error handleer
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

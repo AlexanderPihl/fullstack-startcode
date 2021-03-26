@@ -1,6 +1,7 @@
 import app from "../app"
 import d from 'debug'
 const debug = d("www");
+//const debug = require("debug")("www");
 
 import { DbConnector } from "../config/dbConnector";
 
@@ -17,5 +18,5 @@ const PORT = process.env.PORT || 3333;
     // Replace line above with this one if you wan't to use the Winston logger (see app.ts)
     //app.listen(PORT, () => app.get("logger").log("info", `Server started, listening on PORT: ${PORT}`))
   })()
-
+  
   //connectToDb()
