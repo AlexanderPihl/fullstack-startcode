@@ -56,7 +56,8 @@ app.use("/api", (req: any, res: any, next) => {
 //Makes JSON error-response for ApiErrors, otherwise pass on to default error handleer
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof (ApiError)) {
-    res.status(err.errorCode).json({ errorCode: 404, msg: err.message })
+    //res.status(err.errorCode).json({ errorCode: 404, msg: err.message })
+    res.status(err.errorCode).json({ errorCode: err.errorCode, msg: err.message })
   } else {
     next(err)
   }
