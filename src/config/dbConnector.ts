@@ -36,7 +36,7 @@ export class DbConnector {
 /**
  * In-memory MongoDB which you should use for testing
  */
-export class InMemoryDbConnector {
+ export class InMemoryDbConnector {
   private static client: MongoClient | null
   public static async connect(): Promise<MongoClient> {
     if (InMemoryDbConnector.client) {
