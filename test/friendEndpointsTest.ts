@@ -14,11 +14,15 @@ describe("### Describe the Friend Endpoints (/api/friends) ###", function () {
   let URL: string;
 
   before(async function () {
+    //Connect to IN-MEMORY test database
+    //Get the database and set it on the app-object to make it availabe for the friendRoutes
+    //(See bin/www.ts if you are in doubt relateded to the part above)
+    //Initialize friendCollection, to operate on the database without the facade
     const connection = await InMemoryDbConnector.connect();
-    const db = connection.db();
-    app.set("db", db);
-    app.set("db-type", "TEST-DB");
-    friendCollection = db.collection("friends");
+    const db = connection.db()
+    app.set("db", db)
+    app.set("db-type", "TEST-DB")
+    friendCollection = db.collection("friends")
   })
 
   beforeEach(async function () {
@@ -42,7 +46,9 @@ describe("### Describe the Friend Endpoints (/api/friends) ###", function () {
       expect(response.body.length).to.equal(3)
     })
 
-    xit("it should get a 401 when NOT authenticated", async () => {
+    it("it should get a 401 when NOT authenticated", async () => {
+      const response = await request.get('/api/friends/all')
+      expect(response.status).to.equal(401)
     })
   })
 
@@ -54,35 +60,95 @@ describe("### Describe the Friend Endpoints (/api/friends) ###", function () {
       expect(response.body.id).to.be.not.null
     })
 
-    xit("It should fail to Add user due to wrong password length", async () => {
+    it("It should fail to Add user due to wrong password length", async () => {
+      const newFriend = { firstName: "Jan", lastName: "Olsen", email: "jan@b.dk", password: "sec" }
+      const response = await request.post('/api/friends').send(newFriend)
+      expect(response.status).to.equal(400)
     })
   })
+
   describe("While logged in as a user", function () {
-    xit("It should return the logged in user", async () => {
+    it("It should return the logged in user", async () => {
+      const response = await request
+        .get('/api/friends/me')
+        .auth("pp@b.dk", "secret")
+      expect(response.status).to.equal(200)
+      expect(response.body.email).to.equal("pp@b.dk")
     })
-    xit("It should edit the logged in user", async () => {
+    it("It should edit the logged in user", async () => {
+      const newLastName = { firstName: "Peter", lastName: "XXXX", email: "pp@b.dk", password: "secret" }
+      const response = await request
+        .put('/api/friends/editme').send(newLastName)
+        .auth("pp@b.dk", "secret")
+      expect(response.status).to.equal(200)
+      const responseEdit = await request
+        .get('/api/friends/me')
+        .auth("pp@b.dk", "secret")
+      expect(responseEdit.body.lastName).to.equal("XXXX")
     })
   })
+
   describe("While verifying the get any user, given a userId (email)", function () {
-    xit("It should allow an admin user to find Donald Duck", async () => {
+    it("It should allow an admin user to find Donald Duck", async () => {
+      const response = await request
+        .get('/api/friends/find-user/dd@b.dk')
+        .auth("aa@a.dk", "secret")
+      expect(response.status).to.equal(200)
+      expect(response.body.firstName).to.equal("Donald")
     })
-    xit("It should not, allow admin-users to find a non-existing user", async () => {
+    it("It should not, allow admin-users to find a non-existing user", async () => {
+      const response = await request
+        .get('/api/friends/find-user/cc@b.dk')
+        .auth("aa@a.dk", "secret")
+      expect(response.status).to.equal(404)
     })
 
-    xit("It should not let a non-admin user find Donald Duck", async () => {
+    it("It should not let a non-admin user find Donald Duck", async () => {
+      const response = await request
+        .get('/api/friends/find-user/dd@b.dk')
+        .auth("pp@b.dk", "secret") 
+      expect(response.status).to.equal(401)
     })
   })
 
   describe("While verifying the 'edit any user', given a userId (email)", function () {
-    xit("It should allow an admin-user to edit Peter Pan", async () => {
+    it("It should allow an admin-user to edit Peter Pan", async () => {
+      const newLastName = { firstName: "Peter", lastName: "XXXX", email: "pp@b.dk", password: "secret" }
+      const response = await request
+        .put('/api/friends/pp@b.dk').send(newLastName)
+        .auth("aa@a.dk", "secret")
+      expect(response.status).to.equal(200)
+      const responseEdit = await request
+        .get('/api/friends/find-user/pp@b.dk')
+        .auth("aa@a.dk", "secret")
+      expect(responseEdit.body.lastName).to.equal("XXXX")
     })
-    xit("It should NOT allow a non-admin user to edit Peter Pan", async () => {
+    it("It should NOT allow a non-admin user to edit Peter Pan", async () => {
+      const newLastName = { firstName: "Peter", lastName: "XXXX", email: "pp@b.dk", password: "secret" }
+      const response = await request
+        .put('/api/friends/pp@b.dk').send(newLastName)
+        .auth("dd@b.dk", "secret")
+      expect(response.status).to.equal(401)
     })
   })
+
   describe("While verifying the delete any user, given a userId (email)", function () {
-    xit("It should allow an admin user to delete Donald Duck", async () => {
+    it("It should allow an admin user to delete Donald Duck", async () => {
+      const response = await request
+        .delete('/api/friends/dd@b.dk')
+        .auth("aa@a.dk", "secret")
+      expect(response.status).to.equal(200)
+      const responseDelete = await request
+        .get('/api/friends/all')
+        .auth("aa@a.dk", "secret")
+      expect(responseDelete.status).to.equal(200)
+      expect(responseDelete.body.length).to.equal(2)
     })
-    xit("It should NOT allow a non-admin user to delete Donald Duck", async () => {
+    it("It should NOT allow a non-admin user to delete Donald Duck", async () => {
+      const response = await request
+        .delete('/api/friends/dd@b.dk')
+        .auth("pp@b.dk", "secret")
+      expect(response.status).to.equal(401)
     })
   })
 })

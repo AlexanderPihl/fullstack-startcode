@@ -97,19 +97,18 @@ router.get("/me", async (req: any, res, next) => {
 
 //An admin user can fetch everyone
 router.get("/find-user/:email", async (req: any, res, next) => {
-
-  if (USE_AUTHENTICATION && !req.credentials.role || req.credentials.role !== "admin") {
-    throw new ApiError("Not Authorized", 401)
-  }
-  const userId = req.params.email;
   try {
-    const friend = await facade.getFriend(userId);
-    if (friend == null) {
-      throw new ApiError("user not found", 404)
+    if (USE_AUTHENTICATION && !req.credentials.role || req.credentials.role !== "admin") {
+      throw new ApiError("Not Authorized", 401)
     }
-    const { firstName, lastName, email, role } = friend;
-    const friendDTO = { firstName, lastName, email, role }
-    res.json(friendDTO);
+    const userId = req.params.email;
+      const friend = await facade.getFriend(userId);
+      if (friend == null) {
+        throw new ApiError("user not found", 404)
+      }
+      const { firstName, lastName, email, role } = friend;
+      const friendDTO = { firstName, lastName, email, role }
+      res.json(friendDTO);
   } catch (err) {
     next(err)
   }
@@ -144,9 +143,8 @@ router.put('/:email', async function (req: any, res, next) {
 
 //An admin user can delete everyone
 router.delete('/:email', async function (req: any, res, next) {
-
   try {
-      if (USE_AUTHENTICATION && !req.credentials.role && req.credentials.role !== "admin") {
+      if (USE_AUTHENTICATION && !req.credentials.role || req.credentials.role !== "admin") {
           throw new ApiError("Not Authorized", 401)
       }
       const userId = req.params.email;

@@ -59,34 +59,54 @@ describe("## Verify the Friends Facade ##", () => {
       await expect(facade.addFriend(newFriend)).to.be.rejectedWith(ApiError);
     })
 
-  //Virker ikke endnu
   describe("Verify the editFriend method", () => {
-    xit("It should change lastName to XXXX", async () => {
-      const newLastName = { firstName: "Peter", lastName: "XXXX", email: "pp@b.dk", password: "secret" }
-      const status = await facade.editFriend("pp@b.dk", newLastName);
-      expect(status.modifiedCount).to.equal(1);
-      const editFriend = await friendCollection.findOne({email: "pp@b.dk"});
-      expect(editFriend.lastName).to.be.equal("XXXX");
+    it("It should change lastName to XXXX", async () => {
+      const editedFriend = { firstName: "Peter", lastName: "XXXX", email: "pp@b.dk", password: "secret" }
+        const status = await facade.editFriend("pp@b.dk", editedFriend);
+        expect(status).to.be.not.null;
+        const friend = await friendCollection.findOne({ email: "pp@b.dk" });
+        expect(friend.lastName).to.be.equal("XXXX");
     })
-  })
+})
 
   describe("Verify the deleteFriend method", () => {
-    xit("It should remove the user Peter", async () => {
+    it("It should remove the user Donald", async () => {
+      const status = await facade.deleteFriend("dd@b.dk");
+      expect(status).to.be.not.null;
+      expect(status).to.be.true;
     })
-    xit("It should return false, for a user that does not exist", async () => {
+    it("It should return false, for a user that does not exist", async () => {
+      const status = await facade.deleteFriend("does_not@exist.com");
+      expect(status).to.be.not.null;
+      expect(status).to.be.false;
     })
   })
 
   describe("Verify the getAllFriends method", () => {
-    xit("It should get two friends", async () => {
+    it("It should get two friends", async () => {
+      const status = await facade.getAllFriends();
+      expect(status).to.be.not.null;
+      expect(status).to.be.length(2);
     })
+    
+    it("Should not be more than two friends in the list", async () => {
+      const status = await facade.getAllFriends();
+      expect(status).to.be.not.null;
+      expect(status).to.be.not.length(3);
+  })
   })
 
   describe("Verify the getFriend method", () => {
 
-    xit("It should find Donald Duck", async () => {
+    it("It should find Donald Duck", async () => {
+      const status = await facade.getFriend("dd@b.dk");
+      expect(status).to.be.not.null;
+      expect(status.firstName).to.be.equal("Donald");
     })
-    xit("It should not find xxx.@.b.dk", async () => {
+
+    it("It should not find xxx.@.b.dk", async () => {
+      const status = await facade.getFriend("xxx.@b.dk");
+      expect(status).to.be.null;
     })
   })
 
@@ -96,10 +116,14 @@ describe("## Verify the Friends Facade ##", () => {
       expect(veriefiedPeter).to.be.not.null;
     })
 
-    xit("It should NOT validate Peter Pan's credential,s", async () => {
+    it("It should NOT validate Peter Pan's credential,s", async () => {
+      const verifiedPeter = await facade.getVerifiedUser("pp@b.dk", "wrong_password")
+      expect(verifiedPeter).to.be.null;
     })
 
-    xit("It should NOT validate a non-existing users credentials", async () => {
+    it("It should NOT validate a non-existing users credentials", async () => {
+      const nonExistingUser = await facade.getVerifiedUser("does_not@exist.com", "wrong_password")
+      expect(nonExistingUser).to.be.null;
     })
   })
 
