@@ -1,6 +1,5 @@
 import auth from 'basic-auth'
 
-
 import { Request, Response } from "express"
 import FriendFacade from "../facade/friendFacade"
 

@@ -1,9 +1,13 @@
-First thing todo after cloning this project is create your own .env file in the root of the project.
+# Fullstack Startcode (MongoDB)
+### Testing with Mocha, chai and Supertest
+First thing to do after cloning this project is to create your own `.env` file in the root of the project and add PORT=3000 (port number of your own choice).
 
-Add port ex: 
-PORT=5555
-DEBUG=www
+- CONNECTION= (Your MongoDB connectionstring)
+- DB_NAME=semester_case
+- DEBUG=www,app,setup-friend-testdata,friend-routes
+- SKIP_AUTHENTICATION=1 (For testing only. Comment out the line or delete it)
+- NODE_ENV=production 
 
-#Add database credential
+Remember when doing `npm run dev:debug` to: Toggle auto attack
 
-Remember when using npm run dev:debug to tell VS code to listen for flag "--inspect"
+Remember when using npm run dev:debug to tell VS code to listen for flag `--inspect`
