@@ -23,14 +23,13 @@ app.set("logger", logger)
 /* import myCors from "./middleware/myCors"
 app.use(myCors); */
 //Using Cors package.json
-/* const cors = require('cors')
+import cors from "cors"
 app.use(cors());
- */
+
 
 //SIMPLE LOGGER
 /* import simpleLogger from "./middleware/simpleLogger"
 app.use(simpleLogger); */
-
 
 //Allows to access public folder from outside, using express static middleware.
 app.use(express.static(path.join(process.cwd(), "public")))
@@ -45,32 +44,47 @@ app.get("/demo", (req, res) => {
 })
 
 
-//Rammer denne middleware når man prøver at tilgå ugyldigt endpoint eller ikke får noget respons tilbage.
-//404 handler for api-request
-//Our own default 404-handler for api-requests
-app.use("/api", (req: any, res: any, next) => {
+//graphQl
+import authMiddleware from "./middleware/basic-auth"
+app.use(express.json());
+//app.use("/graphql", authMiddleware)
+
+app.use("/graphql", (req, res, next) => {
+    const body = req.body;
+    if (body && body.query && body.query.includes("createFriend")) {
+        console.log("Create")
+        return next();
+    }
+    if (body && body.operationName && body.query.includes("IntrospectionQuery")) {
+        return next();
+    }
+    if (body.query && (body.mutation || body.query)) {
+        return authMiddleware(req, res, next)
+    }
+    next();
+})
+
+import { graphqlHTTP } from 'express-graphql';
+import { schema } from './graphql/schema';
+app.use('/graphql', graphqlHTTP({
+    schema: schema,
+    graphiql: true,
+}));
+
+// Default 404 handlers for api-requests
+app.use("/api", (req, res, next) => {
   res.status(404).json({ errorCode: 404, msg: "not found" })
 })
 
-
-//Makes JSON error-response for ApiErrors, otherwise pass on to default error handleer
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  if (err instanceof (ApiError)) {
-    //res.status(err.errorCode).json({ errorCode: 404, msg: err.message })
-    res.status(err.errorCode).json({ errorCode: err.errorCode, msg: err.message })
-  } else {
-    next(err)
-  }
+// Makes JSON error-response for ApiErrors, otherwise pass on to default error handleer
+app.use((err: any, req: Request, res: Response, next: Function) => {
+    if (err instanceof (ApiError)) {
+        res.status(err.errorCode).json({ errorCode: err.errorCode, msg: err.message })
+    } else {
+        next(err)
+    }
 })
 
-//middleware test: DELETE THIS????
-/* import authMiddleware from "./middleware/basic-auth"
-app.use("/", authMiddleware)
-
-app.get("/whoami", (req: any, res) => {
-  const user = req.credentials;
-  res.json(user)
-}) */
 
 export default app;
 

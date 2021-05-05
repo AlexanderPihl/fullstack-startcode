@@ -4,6 +4,7 @@ const debug = d("www");
 //const debug = require("debug")("www");
 
 import { DbConnector } from "../config/dbConnector";
+import { setupFacade } from "../graphql/resolvers"
 
 const PORT = process.env.PORT || 3333;
 
@@ -14,9 +15,7 @@ const PORT = process.env.PORT || 3333;
     app.set("db", db) //Make the database available to the rest of the application
     app.set("db-type", "REAL") //So relevant places can log the database used
     app.listen(PORT, () => debug(`Server started, listening on PORT: ${PORT}`))
-  
+    setupFacade(db)
     // Replace line above with this one if you wan't to use the Winston logger (see app.ts)
     //app.listen(PORT, () => app.get("logger").log("info", `Server started, listening on PORT: ${PORT}`))
   })()
-  
-  //connectToDb()
