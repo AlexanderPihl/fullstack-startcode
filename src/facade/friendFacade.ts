@@ -20,6 +20,7 @@ const USER_INPUT_EDIT_SCHEMA = Joi.object({
   email: Joi.string().email().required(),
 });
 
+//bliver sat inde i www.ts
 class FriendsFacade {
   db: Db;
   friendCollection: Collection;

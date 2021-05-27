@@ -3,8 +3,25 @@ import { IFriend } from "../interfaces/IFriend";
 import { ApiError } from "../errors/apiError";
 import { Request } from "express";
 import fetch from "node-fetch";
+import PositionFacade from "../facade/positionFacade";
+import IPosition from "../interfaces/IPosition";
 
 let friendFacade: FriendFacade;
+let positionFacade: PositionFacade;
+
+interface IPositionInput {
+  email: string
+  longitude: number
+  latitude: number
+}
+
+interface IPositionFindInput {
+  email: string
+  password: string
+  longitude: number
+  latitude: number
+  distance: number
+}
 
 /*
 We don't have access to app or the Router so we need to set up the facade in another way
@@ -15,6 +32,9 @@ Just before the line where you start the server
 export function setupFacade(db: any) {
   if (!friendFacade) {
     friendFacade = new FriendFacade(db);
+  }
+  if (!positionFacade) {
+    positionFacade = new PositionFacade(db);
   }
 }
 
@@ -66,6 +86,7 @@ export const resolvers = {
     return friend;
   }
 },
+
   Mutation: {
     createFriend: async (_: object, { input }: { input: IFriend }) => {
       return friendFacade.addFriendV2(input);
@@ -79,6 +100,30 @@ export const resolvers = {
     deleteFriend: async (root: any, { id }: { id: string }) => {
       console.log("resolver: " + id);
       return friendFacade.deleteFriendV2(id);
-    }
+    },
+
+
+    addPosition: async(_: object,  { input }: { input: IPositionInput })=>{
+      try{
+        //console.log(positionFacade.addOrUpdatePosition(input.email, input.longitude, input.latitude));
+        await positionFacade.addOrUpdatePosition(input.email, input.longitude, input.latitude);
+        return true;
+      }catch (err){
+        //return false;
+        throw new ApiError("User not found", 404)
+      }
+    },
+
+    findNearbyFriends: async (_: object, { input }: { input: IPositionFindInput }) => {
+      try {
+          const result = await positionFacade.findNearbyFriends(input.email, input.password, input.longitude, input.latitude, input.distance)
+          console.log(result)
+          return result;
+      } catch (err) {
+          throw new ApiError("User not found", 404)
+      // console.log(err)
+      // return false
+      }
+    } 
   },
 };

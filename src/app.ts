@@ -51,16 +51,22 @@ app.use(express.json());
 
 app.use("/graphql", (req, res, next) => {
     const body = req.body;
+    
+    //fires if we create a friend
     if (body && body.query && body.query.includes("createFriend")) {
         console.log("Create")
         return next();
     }
-    if (body && body.operationName && body.query.includes("IntrospectionQuery")) {
+
+/*     if (body && body.operationName && body.query.includes("IntrospectionQuery")) {
         return next();
-    }
+
+    } */
+    
     if (body.query && (body.mutation || body.query)) {
         return authMiddleware(req, res, next)
     }
+    
     next();
 })
 
